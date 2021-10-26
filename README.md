@@ -3,6 +3,7 @@
 Projekt der IQSH Weiterbildung 2021
 
 Mitwirkende:
+  * Bianca Blank
   * Hannah Meenke
   * Nino Kappler
   * Sascha Ludwig
