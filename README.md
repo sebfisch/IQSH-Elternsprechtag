@@ -3,6 +3,7 @@
 Projekt der IQSH Weiterbildung 2021
 
 Mitwirkende:
+  * Nino Kappler
   * Sascha Ludwig
   * Sebastian Fischer
   * Uta Brauer
