@@ -3,6 +3,7 @@
 Projekt der IQSH Weiterbildung 2021
 
 Mitwirkende:
+  * Sascha Ludwig
   * Sebastian Fischer
   * Stefan Basler
   * Johannes Blauert
