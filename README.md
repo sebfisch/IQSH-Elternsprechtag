@@ -4,5 +4,5 @@ Projekt der IQSH Weiterbildung 2021
 
 Mitwirkende:
   * Sebastian Fischer
-  * Thilo Wünscher 3
+  * Thilo Wünscher
 
