@@ -3,4 +3,4 @@
 Projekt der IQSH Weiterbildung 2021
 
 Mitwirkende:
-Mara
+ * Mara Steiner
