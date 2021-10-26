@@ -3,4 +3,18 @@
 Projekt der IQSH Weiterbildung 2021
 
 Mitwirkende:
-* Nino Kappler :-)
+  * Bianca Blank
+  * Hannah Meenke
+  * Nino Kappler
+  * Sascha Ludwig
+  * Sebastian Fischer
+  * ChristofK
+  * Nina Bartczak
+  * Claudia Flemming
+  * Sönke Raav
+  * Uta Brauer
+  * Stefan Basler
+  * Johannes Blauert
+  * Anke Knorra
+  * Mara Steiner
+  * Thilo Wünscher
