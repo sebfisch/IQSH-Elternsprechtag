@@ -4,5 +4,5 @@ Projekt der IQSH Weiterbildung 2021
 
 Mitwirkende:
   * Sebastian Fischer
-  * ChristofK mal wieder planlos
+  * ChristoK auf dem Weg ins Hub
 
