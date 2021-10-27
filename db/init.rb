@@ -1,3 +1,5 @@
+#fehlt Administrator und Testdaten
+
 require_relative 'database_sqlite'
 
 db = DB.new 'db/elternsprechtag.sqlite'
