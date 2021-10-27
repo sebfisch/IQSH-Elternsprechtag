@@ -127,6 +127,10 @@ lehrkraefte.each do |lehrkraft|
   db.in("Lehrkraft").insert(lehrkraft)
 end
 
+db.in('unterrichtet').insert({ "Lehrkraft" => 2, "Klasse" => 1 })
+db.in('unterrichtet').insert({ "Lehrkraft" => 3, "Klasse" => 1 })
+db.in('unterrichtet').insert({ "Lehrkraft" => 3, "Klasse" => 2 })
+
 schueler.each do |sch|
   sch["Klasse"] = db.in("Klasse").insert({"Bezeichnung" => sch["Klasse"] })
   db.in("Schueler").insert(sch)
@@ -146,17 +150,16 @@ tag = DateTime.new(now.year, now.month, now.day, 9).next_day(10)
   tag = tag + Rational(10, 24*60) # 10 minutes later
 end
 
-
-db.in("Gespraechswunsch").insert({ "Lehrkraft" => 1, "Schueler" => 1 })
-db.in("Gespraechswunsch").insert({ "Lehrkraft" => 1, "Schueler" => 2 })
-db.in("Anfrage").insert({ "Lehrkraft" => 2, "Schueler" => 2 })
+db.in("Gespraechswunsch").insert({ "Lehrkraft" => 2, "Schueler" => 1 })
+db.in("Gespraechswunsch").insert({ "Lehrkraft" => 2, "Schueler" => 2 })
+db.in("Anfrage").insert({ "Lehrkraft" => 3, "Schueler" => 2 })
 db.in("Termin").insert({
-  "Lehrkraft" => 2,
+  "Lehrkraft" => 3,
   "Zeitfenster" => 1,
   "Kommentar" => "Pause"
 })
 db.in("Termin").insert({
-  "Lehrkraft" => 1,
+  "Lehrkraft" => 2,
   "Schueler" => 1,
   "Zeitfenster" => 2,
   "Kommentar" => "mit beiden Eltern"
