@@ -71,15 +71,23 @@ post '/login' do
   hash = password_hash('')
   if row_S != nil then
       hash = row_S['PwHash']
+      if valid_password?(password, hash) then
+        login(username)
+      end
   elsif row_L != nil then
       hash = row_L['PwHash']
-  end
-
-  if valid_password?(password, hash) then
-      login(username)
-  else
+      if valid_password?(password, hash) then
+        login(username)
+      end
+    else
       redirect to '/login'
   end
+
+  # if valid_password?(password, hash) then
+  #     login(username)
+  # else
+  #     redirect to '/login'
+  # end
 #  db.in('user').delete(index)
 end
 
