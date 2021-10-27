@@ -127,14 +127,14 @@ lehrkraefte.each do |lehrkraft|
   db.in("Lehrkraft").insert(lehrkraft)
 end
 
+schueler.each do |sch|
+  sch["Klasse"] = db.in("Klasse").insert({ "Bezeichnung" => sch["Klasse"] })
+  db.in("Schueler").insert(sch)
+end
+
 db.in('unterrichtet').insert({ "Lehrkraft" => 2, "Klasse" => 1 })
 db.in('unterrichtet').insert({ "Lehrkraft" => 3, "Klasse" => 1 })
 db.in('unterrichtet').insert({ "Lehrkraft" => 3, "Klasse" => 2 })
-
-schueler.each do |sch|
-  sch["Klasse"] = db.in("Klasse").insert({"Bezeichnung" => sch["Klasse"] })
-  db.in("Schueler").insert(sch)
-end
 
 now = DateTime.now
 tag = DateTime.new(now.year, now.month, now.day, 9).next_day(10)
