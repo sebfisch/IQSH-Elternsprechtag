@@ -1,6 +1,7 @@
 get '/lehrkraft' do
 	page 'Lehrkräfte', HTML.fragment {
 		inline lehrkraft_formular
+		inline lehrkraft_liste
 		}
 end
 
@@ -72,6 +73,38 @@ end
 
 def lehrkraft_liste
 	lehrkraefte = db.in('lehrkraft').all
+	HTML.fragment {
+		h3 {text 'Liste aller Lehrkräfte'}
+		table{
+			tr{
+				th{ text 'Name' }
+				th{ text 'Kürzel'}
+				th {  }
+			}
+
+			lehrkraefte.each do |lehrkraft|
+				url = "/lehrer/#{lehrkraft['id']}/bearbeiten"
+
+				tr{
+					td{
+						a(href: url) {
+							text lehrkraft['Name']
+						}
+					}
+					td{
+						a(href: url) {
+							text lehrkraft['Kuerzel']
+						}
+					}
+					td {
+						if lehrkraft['Name'] != 'Admin' then
+            				inline delete_button 'löschen' , '/lehrkraft'
+            			end
+          			}
+				}
+			end
+		}
+	}
 
 
 end
