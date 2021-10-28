@@ -13,14 +13,15 @@ status='Admin'
     p{}
     form(method: 'post'){
       table{
-        tr{td{text "Datum des ersten Zeitfensters"}
-        td{input(type:'date',name:'beginn')}}
+        # tr{
+        # td{text "Datum des ersten Zeitfensters"}
+        # td{input(type:'date',name:'Datum')} }
         tr{td{text "Anfangszeit des ersten Zeitfensters"}
-        td{input(type:'time',name:'beginn', placeholder:'15:00')}}
+        td{input(type:'time',name:'Beginn', placeholder:'15:00')}}
         tr{td{text "Dauer eines Zeitfensters"}
-        td{input(type:'integer',name:'dauer', placeholder:'10')}}
+        td{input(type:'integer',name:'Dauer', placeholder:'10')}}
         tr{td{text "Anzahl der Zeitfenster"}
-        td{input(type:'integer',name:'anzahl', placeholder:'18')}}
+        td{input(type:'integer',name:'Anzahl', placeholder:'18')}}
         tr{td{}
         td{input(type:'submit',value:'speichern')}}
       }
@@ -34,14 +35,30 @@ status='Admin'
 # Beginn, Ende, Lösch-Knopf (alles ohne Spaltenbeschriftung). 
 # Anzeige von Beginn und Ende ohne Datum.
 # Lösch-Knopf DELETE /zeitfenster/:id
-    text "Hier kommt die Liste der Zeitfenster."
-    liste=db.in('zeitfenster').all
+    p { text "Hier kommt die Liste der Zeitfenster."}
+    liste=db.in('Zeitfenster').all
     table{
       liste.each do |eintrag|
-        tr{td{text eintrag["Beginn"]}
-        td{" bis "}
-        tr{text eintrag[]}}
+        beginn = eintrag["Beginn"]
+        dauer = eintrag["Dauer"]
+        hh = beginn[0,2].to_i
+        min = beginn[3,2].to_i 
 
+        hh = hh + (min + dauer) / 60
+        min = (min + dauer) % 60
+        if hh < 10 then
+          hh = "0" + hh.to_s
+        end
+        if min < 10 then
+          min = "0" + min.to_s
+        end
+        ende = hh.to_s + "\:" + min.to_s
+        tr{
+          td{text beginn}
+          td{" bis "}
+          td{text ende}
+          td{ inline delete_button 'löschen', "/zeitfenster/#{eintrag["id"]}" }      
+        }
       end
     }
     
