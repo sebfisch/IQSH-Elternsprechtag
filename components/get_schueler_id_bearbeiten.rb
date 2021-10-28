@@ -9,14 +9,17 @@ get '/schueler/:id/bearbeiten' do |sid|
         
         page 'Schuelerdaten bearbeiten', HTML.fragment {
             form(method: 'post', action: url) {
-                div {            
-                    input(type: 'text', name: 'Name', placeholder: 'Name', value: schueler['Name'])
+                div {  
+                    label { text 'Name' }          
+                    input(type: 'text', name: 'Name',  value: schueler['Name'])
                 }
                 div{
-                    input(type: 'text', name: 'Klasse', placeholder: 'Klasse', value: db.in('Klasse').get(schueler['Klasse'].to_i)["Bezeichnung"])
+                    label { text 'Klasse' }  
+                    input(type: 'text', name: 'Klasse',  value: db.in('Klasse').get(schueler['Klasse'].to_i)["Bezeichnung"])
                 }
                 div {
-                    input(type: 'text', name: 'Passwort', placeholder: 'Passwort, leer wenn nicht zu ändern',value: "")
+                    label { text 'Passwort, leer wenn es das alte bleiben soll' }
+                    input(type: 'text', name: 'Passwort', value: "")
                 }
                 div {
                     input(type: 'submit', value: "Speichern")
