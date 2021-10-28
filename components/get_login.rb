@@ -4,9 +4,6 @@
 # * Formular zum Einloggen mit Name und Passwort
 # -> GET /register
 
-get '/' do
-  redirect to '/login'
-end
 
 get '/login' do
   page "Login", HTML.fragment {
@@ -57,56 +54,6 @@ def login_form(method = 'post')
     }
 end
 
-# ## POST /login
-# * Prüfen, ob Name bekannt und Passwort korrekt ist
-# * Wenn nicht -> GET /login
-# * Falls ja -> Weiterleitung durch Aufruf von login-Funktion
-
-post '/login' do
-#   index =  db.in('user').insert({'name' => 'Johannes', 'hash' => password_hash('geheim')})
-  username = params['Benutzername']
-  password = params['Passwort']
-  row_S = db.in('Schueler').one_where("Name = '#{username}'")
-  row_L = db.in('Lehrkraft').one_where("Kuerzel = '#{username}'")
-  hash = password_hash('')
-  if row_S != nil then
-      hash = row_S['PwHash']
-      if valid_password?(password, hash) then
-        login(username)
-      end
-  elsif row_L != nil then
-      hash = row_L['PwHash']
-      if valid_password?(password, hash) then
-        login(username)
-      end
-    else
-      redirect to '/login'
-  end
-
-  # if valid_password?(password, hash) then
-  #     login(username)
-  # else
-  #     redirect to '/login'
-  # end
-#  db.in('user').delete(index)
-end
 
 
 
-# ## GET /logout
-# * Abmelden des angemeldeten Nutzers und Weiterleitung mit logout-Funktion
-
-get '/logout' do
-  logout
-  redirect to '/movies'
-end
-
-def get_status
-  row_S = db.in('Schueler').one_where("Name = '#{currentuser}'")
-  row_L = db.in('Lehrkraft').one_where("Kuerzel = '#{currentuser}'")
-  if row_S != nil then
-    return "Schueler"
-  elsif row_L != nil then
-    return "Lehrkraft"
-  end
-end
