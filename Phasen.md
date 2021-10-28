@@ -47,7 +47,7 @@
 - Lehrkraft kann sich krank melden (auch in Phase Abruf)
 - Lehrkräfte können Pausen anlegen, löschen (auch in Phase Abruf)
 
-### GET /pause/:id
+### GET /pause/:id/bearbeiten
 
 - Lehrkräfte können Pausen bearbeiten (auch in Phase Abruf)
 
@@ -64,7 +64,7 @@
   - vereinbarte Termine (mit Lösch-Knopf, auch in Phase Abruf)
   - verfügbare Lehrkräfte (in dieser Phase nur Gesprächswünsche)
 
-### GET /termin/:id
+### GET /termin/:id/bearbeiten
 
 - priorisierte SuS können Termine zu Gesprächswünschen bearbeiten (Kommentar und Zeitfenster)
 
