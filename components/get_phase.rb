@@ -2,24 +2,25 @@
 
 get '/phase' do
     page 'Phasen', HTML.fragment{
-    phasenseite
+        inline phasenseite
     }
 
 end
 
 def phasenseite ()
-p {
-    strong { text 'Phasen:' }
+    HTML.fragment{
+        form(method: 'post'){
+
     table {
       
         tr {
-          td { text 'Konfiguration' }
+          td { text 'Konfiguration'}
           td {
             input(
                 type: 'text', 
                 size: 42,
                 name: 'config', 
-                value: get_configDate
+                value: get_configDate  # Time.now.utc.iso8601.to_s
               )
              }
          }
@@ -58,27 +59,33 @@ p {
         }
     }
 
-           
-      
+        input(
+            type: 'submit',           
+            value: 'abschicken'
+        )
+    }
     
-}
+    }
 end
+
+           
+   
 
 def get_configDate ()
 
-    return db.in("Phase").one_where('Bezeichnung = Konfiguration')
+    return db.in("Phase").one_where('Bezeichnung = "Konfiguration"')["Beginn"][0,19]
 end 
 
 def get_prioDate ()
-    return db.in("Phase").one_where('Bezeichnung = PrioBuchung')
+    return db.in("Phase").one_where('Bezeichnung = "PrioBuchung"')["Beginn"][0,19]
 end
 
 def get_bookingDate ()
 
-    return db.in("Phase").one_where('Bezeichnung = Buchung')
+    return db.in("Phase").one_where('Bezeichnung = "Buchung"')["Beginn"][0,19]
 end
 
 def get_recallDate ()
 
-    return db.in("Phase").one_where('Bezeichnung = Abruf')
+    return db.in("Phase").one_where('Bezeichnung = "Abruf"')["Beginn"][0,19]
 end
