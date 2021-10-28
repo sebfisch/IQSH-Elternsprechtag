@@ -6,7 +6,7 @@ post '/schueler/:id/bearbeiten' do |sid|
     redirect to url
   end
  
-    schueler2=db.in('Schueler').one_where('Name=?',[params['Name']])
+  schueler2=db.in('Schueler').one_where('Name=?',[params['Name']])
   if schueler2!=nil then
     if schueler2["id"]!=sid.to_i then
         redirect to url
