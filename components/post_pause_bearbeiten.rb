@@ -17,12 +17,10 @@
 
 post "/pause/:id/bearbeiten" do
     user = current_user 
-    p user
     if user == nil || user["Kuerzel"] == nil then
         redirect to "/"
         
     else
-        
         termin = get_termin(params[:id].to_i)
         termin["Kommentar"] =params["Kommentar"] 
         db.in("Termin").set(termin["id"], termin)
