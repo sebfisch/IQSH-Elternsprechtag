@@ -13,14 +13,16 @@ post '/login' do
           hash = row_S['PwHash']
           if valid_password?(password, hash) then
             login(username)
+            redirect to '/'
           end
       elsif row_L != nil then
           hash = row_L['PwHash']
           if valid_password?(password, hash) then
             login(username)
+            redirect to '/'
           end
         else
           redirect to '/login'
       end
     
-    end
+end
