@@ -1,3 +1,5 @@
+
+require 'bcrypt'
 require_relative 'database_sqlite'
 
 db = DB.new 'db/elternsprechtag.sqlite'
@@ -10,18 +12,21 @@ db.init('Klasse', '
 db.init('Lehrkraft', '
   id integer primary key autoincrement not null unique,
   Name text not null,
-  Kuerzel text not null,
+  Kuerzel text not null unique,
   PwHash text not null,
   istAdmin integer not null
 ')
 
+db.execute "create index ixLehrkraftKuerzel on Lehrkraft(Kuerzel);"
+
 db.init('Schueler', '
   id integer primary key autoincrement not null unique,
-  Name text not null,
+  Name text not null unique,
   PwHash text not null,
   Klasse integer not null references Klasse(id) on delete cascade
 ')
 
+db.execute "create index ixSchuelerName on Schueler(Name);"
 db.execute "create index ixSchuelerKlasse on Schueler(Klasse);"
 
 db.init('unterrichtet', '
@@ -75,3 +80,94 @@ db.init('Phase', '
   Bezeichnung text not null
 ')
 
+def mkLehrkraft(name, kuerzel, password, istAdmin)
+  return { 
+    "Name" => name,
+    "Kuerzel" => kuerzel,
+    "PwHash" => BCrypt::Password.create(password).to_s,
+    "istAdmin" => istAdmin
+  }
+end
+
+# create Admin user
+print "Bitte Admin-Passwort eingeben: "
+password = gets.chop
+db.in("Lehrkraft").insert(mkLehrkraft("Admin", "admin", password, 1))
+
+# create phases
+beginn = DateTime.now
+["Konfiguration", "PrioBuchung", "Buchung", "Abruf"].each do |phase|
+  beginn = beginn.next_day
+  db.in('Phase').insert({ "Beginn" => beginn.to_s, "Bezeichnung" => phase })
+end
+
+# create test data
+
+lehrkraefte = [
+  mkLehrkraft("Albert Einstein", "ae", "einstein", 0),
+  mkLehrkraft("Grace Hopper", "gh", "hopper", 1)
+]
+
+def mkSchueler(name, password, klasse)
+  return {
+    "Name" => name,
+    "PwHash" => BCrypt::Password.create(password).to_s,
+    "Klasse" => klasse
+  }
+end
+
+schueler = [
+  mkSchueler("Max", "max", "2a"),
+  mkSchueler("Moritz", "moritz", "2a"),
+  mkSchueler("Tick", "tick", "3b"),
+  mkSchueler("Trick", "trick", "3b"),
+  mkSchueler("Track", "track", "3b")
+]
+
+lehrkraefte.each do |lehrkraft|
+  db.in("Lehrkraft").insert(lehrkraft)
+end
+
+schueler.each do |sch|
+  sch["Klasse"] = db.in("Klasse").insert({ "Bezeichnung" => sch["Klasse"] })
+  db.in("Schueler").insert(sch)
+end
+
+db.in('unterrichtet').insert({ "Lehrkraft" => 2, "Klasse" => 1 })
+db.in('unterrichtet').insert({ "Lehrkraft" => 3, "Klasse" => 1 })
+db.in('unterrichtet').insert({ "Lehrkraft" => 3, "Klasse" => 2 })
+
+def pad(x)
+  if x < 10 then
+    return "0#{x}"
+  else
+    return x.to_s
+  end
+end
+
+def show_time zeit
+  return "#{pad(zeit[0])}:#{pad(zeit[1])}"
+end
+
+zeiten = [[9,0],[9,10],[9,20],[9,30],[9,40],[9,50]]
+zeiten.each do |zeit|
+  db.in("Zeitfenster").insert({
+    "Beginn" => show_time(zeit),
+    "Dauer" => 10
+  })
+end
+
+db.in("Gespraechswunsch").insert({ "Lehrkraft" => 2, "Schueler" => 1 })
+db.in("Gespraechswunsch").insert({ "Lehrkraft" => 2, "Schueler" => 2 })
+db.in("Anfrage").insert({ "Lehrkraft" => 3, "Schueler" => 2 })
+db.in("Termin").insert({
+  "Lehrkraft" => 3,
+  "Zeitfenster" => 1,
+  "Kommentar" => "Pause"
+})
+db.in("Termin").insert({
+  "Lehrkraft" => 2,
+  "Schueler" => 1,
+  "Zeitfenster" => 2,
+  "Kommentar" => "mit beiden Eltern"
+})
