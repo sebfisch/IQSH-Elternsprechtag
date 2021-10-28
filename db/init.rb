@@ -1,4 +1,3 @@
-
 require 'bcrypt'
 require_relative 'database_sqlite'
 
