@@ -40,15 +40,23 @@ get '/' do
   page "Elternsprechtag", HTML.fragment {
 
       # Angemeldet als Lehrkraft:
-      if (status=="Lehrkraft" || status == "Admin") && phase =="PrioBuchung" then
+      if (status=="Lehrkraft" || status == "Admin") then
         text "Schüler zu Gespräch einladen:"
         # Formular mit Name-Feld und "speichern"-Knopf POST /wunsch
-        inline gespraechswunsch_form('/wunsch')
+        inline gespraechswunsch_form
+         # inline Hilfsfunktion, die Tabelle mit den Gesprächswünschen berechnet/zurückliefert 
       end
     }
     end
   
 end
+
+def wuensche_lehrkraft
+  l_id = current_user["id"]
+  meine_wuensche = db.in("Gespraechswunsch").all_where("Lehrkraft = ?", [l_id])
+  #hier fehlen noch der Name des Schülers und die Klasse 
+end
+
 
 #Formular um Gesprächswünsche anzulegen
 def gespraechswunsch_form(method = 'post')
