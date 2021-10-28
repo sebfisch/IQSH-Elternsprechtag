@@ -56,7 +56,7 @@ def gespraechswunsch_form(method = 'post')
   special_method = !['get', 'post'].include?(method)
   
   HTML.fragment {
-    form(method: if special_method then 'post' else method end) {
+    form(method: if special_method then 'post' else method end, action: '/wunsch' )  {
       if special_method then
         input(type: 'hidden', name: '_method', value: method)
       end
