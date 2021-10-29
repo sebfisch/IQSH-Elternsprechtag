@@ -70,7 +70,7 @@ def lehrkraft_index_page(phase, user, schueler, wuensche, zeiten)
         input(type: 'submit', value: 'krank melden')
       }
 
-      h2 { text 'Gespächswünsche' }
+      h2 { text 'Gesprächswünsche' }
 
       # Formular mit Name-Feld und "speichern"-Knopf `POST /wunsch`
       form(method: 'post', action: "/wunsch") {
