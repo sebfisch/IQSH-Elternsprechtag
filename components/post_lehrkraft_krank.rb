@@ -40,3 +40,4 @@ post '/lehrkraft/:id/krank' do |lid|
     
     redirect to '/'
 end
+
