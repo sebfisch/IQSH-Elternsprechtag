@@ -30,6 +30,7 @@ def page titel, inhalt
               }
             end
           }
+          td { a(href: '/') { text "Startseite" } }
           td {
               if status == 'Admin' then
                   a(href: '/lehrkraft') {
