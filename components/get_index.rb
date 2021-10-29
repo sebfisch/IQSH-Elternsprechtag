@@ -61,14 +61,15 @@ end
 
 def lehrkraft_index_page(phase, user, schueler, wuensche, zeiten)
   return page "Elternsprechtag", HTML.fragment {
-    # Knopf "krank melden" `POST /lehrkraft/:id/krank`
-    form(method: 'post', action: "/lehrkraft/#{user['id']}/krank") {
-      input(type: 'submit', value: 'krank melden')
-    }
-
     if phase == "Einrichtung" then
+      p { text "Die Konfigurationsphase hat noch nicht begonnen." }
       inline phasen_info
     else
+      # Knopf "krank melden" `POST /lehrkraft/:id/krank`
+      form(method: 'post', action: "/lehrkraft/#{user['id']}/krank") {
+        input(type: 'submit', value: 'krank melden')
+      }
+
       h2 { text 'Gespächswünsche' }
 
       # Formular mit Name-Feld und "speichern"-Knopf `POST /wunsch`
@@ -218,6 +219,7 @@ end
 def schueler_index_page(phase, user, zeiten, wuenschende, unterrichtende)
   return page "Elternsprechtag", HTML.fragment {
     if ["Einrichtung", "Konfiguration"].include?(phase) then
+      p { text "Die priorisierte Buchungsphase hat noch nicht begonnen." }
       inline phasen_info
     else
       h2 { text "Zeitplan" }
