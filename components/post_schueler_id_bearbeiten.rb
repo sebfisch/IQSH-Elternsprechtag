@@ -1,5 +1,10 @@
 post '/schueler/:id/bearbeiten' do |sid|
+  if (get_status(current_user) != "Admin") then
+    redirect to "/"
+  end
+
     url='/schueler/'+sid+'/bearbeiten'
+
     #Konsistenzprüfung
   #Name nicht der leere String und nicht mit anderer id verwendet
   if params['Name']=="" then
@@ -20,13 +25,16 @@ post '/schueler/:id/bearbeiten' do |sid|
   schueler=db.in('Schueler').get(sid.to_i)# Datensatz Schüler
   schueler["Name"]=params['Name']
 
-if schueler['Name'] == nil then
+
+  if params['Passwort'] != '' then
+    schueler['PwHash'] = password_hash params['Passwort']
+  end
+
+  schueler['Klasse'] = db.in('Klasse').insert('Bezeichnung' => params['Klasse'])
+
   
-end
-  
-schueler["PwHash"]=params['PwHash']
   db.in('Schueler').set(sid.to_i,schueler)
-  
+    
   redirect to url
 
 end
