@@ -257,7 +257,8 @@ def schueler_index_page(phase, user, zeiten, wuenschende, unterrichtende)
             termin = zeit['Termin']
             td {
               if termin != nil then
-                text termin['Lehrkraft']['Name']
+                a(href: "/termin/#{termin['id']}/bearbeiten"){
+                text termin['Lehrkraft']['Name']}
                 text ', '
                 text termin['Kommentar']
               end

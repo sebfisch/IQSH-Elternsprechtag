@@ -27,6 +27,10 @@ post '/lehrkraft/:id/krank' do |lid|
                 db.in('Termin').insert({"Kommentar" => "abwesend", "Lehrkraft" => lid.to_i, "Schueler" => nil, "Zeitfenster" => zf["id"].to_i})
             end
         end 
+        gespraeche = db.in("Gespraechswunsch").all_where("Lehrkraft = ?", [lid])
+        gespraeche.each do |gespr|
+            db.in("Gespraechswunsch").delete(gespr["id"])
+        end
         redirect to '/'
     end
 end
