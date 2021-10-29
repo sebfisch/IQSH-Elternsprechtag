@@ -1,6 +1,9 @@
 
 
 get '/phase' do
+    if (get_status(current_user)!="Admin") then
+        redirect to '/'
+    end
     page 'Phasen', HTML.fragment{
         inline phasenseite
     }

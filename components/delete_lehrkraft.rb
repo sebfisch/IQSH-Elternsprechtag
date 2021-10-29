@@ -8,3 +8,4 @@ delete '/lehrkraft/:id' do |lid|
     db.in('lehrkraft').delete(lid)
     redirect to '/lehrkraft'
 end
+

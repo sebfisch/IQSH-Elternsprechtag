@@ -1,4 +1,8 @@
-get '/lehrkraft' do
+get '/lehrkraft', login: true do
+	user = current_user
+	if get_status(user)!="Admin" then
+		redirect to "/"
+	end
 	page 'Lehrkräfte', HTML.fragment {
 		inline lehrkraft_formular
 		inline lehrkraft_liste
@@ -98,7 +102,7 @@ def lehrkraft_liste
 					}
 					td {
 						if lehrkraft['Name'] != 'Admin' then
-            				inline delete_button 'löschen' , '/lehrkraft'
+            				inline delete_button 'löschen' , "/lehrkraft/#{lehrkraft['id']}"
             			end
           			}
 				}

@@ -1,6 +1,9 @@
 # Konsistenzpruefung
 
 post '/schueler' do
+    if (get_status(current_user)!="Admin") then
+        redirect to "/"
+    end
     s_klasse = params['Klasse']
     s_name = params['Name']
     s_passwort = params['Passwort']
