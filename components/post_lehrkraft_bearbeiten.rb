@@ -3,23 +3,27 @@ post '/lehrkraft/:id/bearbeiten', login: true do |lid|
 	if get_status(user)!="Admin" then
 		redirect to "/"
     end
-    
-    if params["Kuerzel"] == nil && db.in('Lehrkraft').one_where('Kuerzel = ?', params['Kuerzel']) != nil && params["Name"] == "" then
-        redirect to '/lehrkraft/:id/bearbeiten'
-    else
-         #Datensatz mit Eingabe überschreiben
-        lehrkraft=db.in('Lehrkraft').get(lid.to_i)
-        
-        if params["PwHash"] != nil then
-            db.in("Lehrkraft").set(lid.to_i,lehrkraft["PwHash"] = params['PwHash'])
-        end
 
-        
-        db.in('Lehrkraft').set(lid.to_i,lehrkraft["Name"]=params['Name'], lehrkraft["Kuerzel"]=params["Kuerzel"], lehrkraft["istAdmin"]=params["istAdmin"])
-        redirect to '/lehrkraft'
+    own_path = "/lehrkraft/#{lid}/bearbeiten"
 
-        
+    if params['Kuerzel'] == '' || params['Name'] == "" then
+        redirect to own_path
     end
     
+    if db.in('Lehrkraft').one_where('Kuerzel = ? and id <> ?', [params['Kuerzel'], lid.to_i]) != nil then
+        redirect to own_path
+    end
+        #Datensatz mit Eingabe überschreiben
+    lehrkraft=db.in('Lehrkraft').get(lid.to_i)
+    
+    if params["Passwort"] != "" then
+        lehrkraft["PwHash"] = password_hash(params['Passwort'])
+    end
 
+    lehrkraft["Name"]=params['Name']
+    lehrkraft["Kuerzel"]=params["Kuerzel"]
+    lehrkraft["istAdmin"]=params["istAdmin"]
+
+    db.in('Lehrkraft').set(lid.to_i,lehrkraft)
+    redirect to '/lehrkraft'
 end

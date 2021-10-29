@@ -17,11 +17,11 @@ status='Admin'
         # td{text "Datum des ersten Zeitfensters"}
         # td{input(type:'date',name:'Datum')} }
         tr{td{text "Anfangszeit des ersten Zeitfensters"}
-        td{input(type:'time',name:'Beginn', placeholder:'15:00')}}
+        td{input(type:'time',name:'Beginn')}}
         tr{td{text "Dauer eines Zeitfensters"}
-        td{input(type:'integer',name:'Dauer', placeholder:'10')}}
+        td{input(type:'integer',name:'Dauer')}}
         tr{td{text "Anzahl der Zeitfenster"}
-        td{input(type:'integer',name:'Anzahl', placeholder:'18')}}
+        td{input(type:'integer',name:'Anzahl')}}
         tr{td{}
         td{input(type:'submit',value:'speichern')}}
       }

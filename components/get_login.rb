@@ -36,7 +36,7 @@ def login_form(method = 'post')
         div {
           label { text 'Passwort' }
           input(
-            type: 'text', 
+            type: 'password', 
             name: 'Passwort', 
             placeholder: 'Passwort' 
           )

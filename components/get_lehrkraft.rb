@@ -87,7 +87,7 @@ def lehrkraft_liste
 			}
 
 			lehrkraefte.each do |lehrkraft|
-				url = "/lehrer/#{lehrkraft['id']}/bearbeiten"
+				url = "/lehrkraft/#{lehrkraft['id']}/bearbeiten"
 
 				tr{
 					td{

@@ -97,15 +97,6 @@ def lehrkraft_index_page(phase, user, schueler, wuensche, anfragen, zeiten)
         end
       }
 
-      # Anfragen bei Terminkonflikt
-      h2 { text "Anfragen mit Terminkonflikt" }
-
-      ul {
-        anfragen.each do |schueler|
-          li { text schueler['Name'] }
-        end
-      }
-
       # Tabelle mit bereits angelegten Gesprächswünschen und den Spalten:
       # - Name
       # - Klasse
@@ -117,6 +108,15 @@ def lehrkraft_index_page(phase, user, schueler, wuensche, anfragen, zeiten)
             td { text wunsch['Schueler']['Klasse']['Bezeichnung'] }
             td { inline delete_button("löschen", "/wunsch/#{wunsch['id']}") }
           }
+        end
+      }
+
+      # Anfragen bei Terminkonflikt
+      h2 { text "Warteliste" }
+
+      ul {
+        anfragen.each do |schueler|
+          li { text schueler['Name'] }
         end
       }
 
