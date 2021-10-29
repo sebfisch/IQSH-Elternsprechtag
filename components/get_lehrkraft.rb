@@ -1,4 +1,4 @@
-get '/lehrkraft', login: TRUE do
+get '/lehrkraft', login: true do
 	user = current_user
 	if get_status(user)!="Admin" then
 		redirect to "/"

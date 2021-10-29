@@ -1,4 +1,4 @@
-post '/lehrkraft/:id/bearbeiten', login: TRUE do |lid|
+post '/lehrkraft/:id/bearbeiten', login: true do |lid|
     user = current_user
 	if get_status(user)!="Admin" then
 		redirect to "/"
