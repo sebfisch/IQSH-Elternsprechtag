@@ -24,7 +24,7 @@ end
 
 def konsistent_lz?(lid, sid, sklasse, zid, phase)
     if lehrkraft_frei?(lid, zid) && keinen_termin_vereinbart?(lid, sid) then
-        if phase == "PrioBuchung" || phase = "Buchung" then
+        if phase == "PrioBuchung" || phase == "Buchung" then
             if phase == "PrioBuchung" && hat_gesprachswunsch?(lid, sid)
                 return true
             end
