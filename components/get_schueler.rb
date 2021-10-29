@@ -1,6 +1,9 @@
 
 
 get '/schueler' do
+    if (get_status(current_user)!="Admin") then
+        redirect to "/"
+    end
     schueler = db.in('Schueler').all
     page 'Schüler anlegen', HTML.fragment {
         inline schueler_form
