@@ -11,7 +11,6 @@
 
 get "/termin/:id/bearbeiten" do
     termin = get_termin(params[:id].to_i)      # get_termin in get_pause_bearbeiten.rb
-
     schueler_id = termin["Schueler"]
     name = db.in("Schueler").one_where("id = ?", [schueler_id])["Name"] #Name des Schülers
     if name == current_user["Name"] && current_user["Kuerzel"] == nil && name != "" then
