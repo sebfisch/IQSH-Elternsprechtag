@@ -7,7 +7,7 @@ post '/lehrkraft' do
 
     lid = db.in('Lehrkraft').insert({'Name' => params['name'], 'Kuerzel' => params['kuerzel'], 'PwHash' => password_hash(params['passwort']), 'istAdmin' => (params['istAdmin'] == 'on' ? 1 : 0)})
     
-    #redirect to '/lehrkraft/#{lid}/bearbeiten'  ##Ist wahrscheinlich richtig, Seite zum testen gibt es (noch) nicht
-    redirect to "/" #nur Platzhalter
+    redirect to "/lehrkraft/#{lid}/bearbeiten"  ##Ist wahrscheinlich richtig, Seite zum testen gibt es (noch) nicht
+    
 end
 
