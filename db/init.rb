@@ -89,7 +89,7 @@ def mkLehrkraft(name, kuerzel, password, istAdmin)
 end
 
 # create Admin user
-print "Bitte Admin-Passwort eingeben: "
+print "Bitte Admin-Passwort festlegen: "
 password = gets.chop
 db.in("Lehrkraft").insert(mkLehrkraft("Admin", "admin", password, 1))
 

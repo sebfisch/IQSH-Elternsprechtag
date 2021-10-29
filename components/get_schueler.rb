@@ -1,17 +1,15 @@
-#require "html"
-#require "sinatra"
-#require_relative "db/database_sqlite"
-#require_relative "authentication"
+
 
 get '/schueler' do
+    schueler = db.in('Schueler').all
     page 'Schüler anlegen', HTML.fragment {
         inline schueler_form
-        #inline schueler_table
+        inline schueler_table schueler
     }
 end
 
-def schueler_form() # hier muss noch mehr hin
-    HTML.fragment{
+def schueler_form() 
+    HTML.fragment{        
         form(method: 'post'){
             div{
                 label {text 'Name'}
@@ -19,17 +17,15 @@ def schueler_form() # hier muss noch mehr hin
                     type: 'text',
                     name: 'Name',
                     placeholder: 'Name',
-                    #value: schueler['Name']
                 )
             }
 
             div{
-                label{text 'PwHash'}
+                label{text 'Passwort'}
                 input(
-                    type: 'text',
+                    type: 'password',
                     name: 'Passwort',
                     placeholder: 'Passwort',
-                    #value: password_hash(password)      #?
                 )
             }
 
@@ -38,8 +34,7 @@ def schueler_form() # hier muss noch mehr hin
                 input(
                     type: 'text',
                     name: 'Klasse',
-                    placeholder: 'Klasse',
-                    #value: schueler['Klasse']
+                    placeholder: 'Klasse', 
                 )
             }
 
@@ -52,24 +47,31 @@ def schueler_form() # hier muss noch mehr hin
     }
 end
 
-# def schueler_table schueler
-#     HTML.fragment{
-#     table{
-#         tr{
-#             th{ text 'Name'}
-#             th{text 'Klasse '}
-#             th {text ''}
-#             th {text ''}
-#         }
-
-#         tr {
-#             td {text schueler['Name']}
-#             td {text schueler['Klasse']}
-#             td {inline delete_schueler('löschen', url)}
-#         }
+def schueler_table schueler
+    HTML.fragment{
+    table{
+        tr{
+            th{ text 'Name'}
+            th{text 'Klasse '}
+            th {text ''}
+            th {text ''}
+        }
+        schueler.each do |schueler| 
+            url = "/schueler/#{schueler['id']}/bearbeiten"
+            urll = "/schueler/#{schueler['id']}"
+            klasse = db.in('Klasse').one_where("id = ?", [schueler['Klasse']])["Bezeichnung"]
+        tr {
+            td {
+                a(href:url){
+                text schueler['Name']}
+            }
             
+            td {text klasse }
+            td {inline delete_button('löschen', urll)}
+        }
+    end         
         
-#     }
-#     }
-
-# end
+    }
+    }
+end
+#klasse = db.in('Klasse').one_where("id = ?", [Schueler['Klasse']])["Bezeichnung"]

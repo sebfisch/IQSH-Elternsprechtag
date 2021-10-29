@@ -1,23 +1,29 @@
 post '/schueler/:id/bearbeiten' do |sid|
     url='/schueler/'+sid+'/bearbeiten'
-    p sid
-  #Konsistenzprüfung
-  
+    #Konsistenzprüfung
   #Name nicht der leere String und nicht mit anderer id verwendet
   if params['Name']=="" then
     redirect to url
   end
-  sid2=db.in('Schueler').one_where('Name=?',[params['Name']])
-  if sid2!=nil then
-    if sid2!=sid then
+ 
+  schueler2=db.in('Schueler').one_where('Name=?',[params['Name']])
+  if schueler2!=nil then
+    if schueler2["id"]!=sid.to_i then
         redirect to url
     end
   end
   #Klasse nicht der leere String
-  if params['Klasse']="" then
+  if params['Klasse']=="" then
     redirect to url
   end
-  
   #Name mit Eingabe überschreiben
+  schueler=db.in('Schueler').get(sid.to_i)
+  schueler["Name"]=params['Name']
+  db.in('Schueler').set(sid.to_i,schueler)
+  
+
+
+
+  redirect to url
 
 end
