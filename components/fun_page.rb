@@ -23,10 +23,10 @@ def page titel, inhalt
           }
           td {
             if logged_in then
-              inline logout_button 'logout', '/logout'
+              inline logout_button 'abmelden', '/logout'
             else
               a(href: '/login') {
-                text 'einloggen'
+                text 'anmelden'
               }
             end
           }

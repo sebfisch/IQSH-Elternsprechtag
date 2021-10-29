@@ -1,4 +1,3 @@
-
 post '/schueler/:id/bearbeiten' do |sid|
     url='/schueler/'+sid+'/bearbeiten'
     #Konsistenzprüfung
