@@ -5,7 +5,7 @@
 get '/schueler/:id/bearbeiten' do |sid|
     if (get_status(current_user)=="Admin") then
         schueler = db.in('Schueler').get(sid)
-        url = "/schueler/:"+sid+"/bearbeiten"
+        url = "/schueler/"+sid+"/bearbeiten"
         
         page 'Schuelerdaten bearbeiten', HTML.fragment {
             form(method: 'post', action: url) {

@@ -27,5 +27,6 @@ post '/zeitfenster/:id/pause' do |time_id|
             db.in("Termin").insert({'Kommentar' => comment, 'Lehrkraft'=>u_id, 'Schueler'=> nil, 'Zeitfenster'=> time_id})
         end
     end
+    redirect to '/'
 end
 
