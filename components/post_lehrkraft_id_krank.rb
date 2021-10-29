@@ -10,7 +10,8 @@
 #    Pausen für alle Zeitfenster eintragen (Kommentar: "krank")
 #
 
-#Weiterleitung GET /
+#Weiterleitung GET / 
+
 
 
 post '/lehrkraft/:id/krank' do |lid|
