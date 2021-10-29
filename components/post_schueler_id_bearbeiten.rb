@@ -18,13 +18,16 @@ post '/schueler/:id/bearbeiten' do |sid|
     redirect to url
   end
   #Name mit Eingabe überschreiben
-  schueler=db.in('Schueler').get(sid.to_i)
+  schueler=db.in('Schueler').get(sid.to_i)# Datensatz Schüler
   schueler["Name"]=params['Name']
+
+if schueler['Name'] == nil then
+  
+end
+  
+schueler["PwHash"]=params['PwHash']
   db.in('Schueler').set(sid.to_i,schueler)
   
-
-
-
   redirect to url
 
 end
