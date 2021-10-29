@@ -2,19 +2,23 @@
 get '/', login: true do
   user = current_user
   role = get_status(user)
+  phase = get_phase
 
   # Angemeldet als Lehrkraft:
   if ["Admin", "Lehrkraft"].include?(role) then
     wuensche = lehrkraft_wuensche(user['id'])
     schueler = lehrkraft_schueler(user['id'])
     zeiten = lehrkraft_zeiten(user['id'])
-    lehrkraft_index_page(user, schueler, wuensche, zeiten)
-  # Angemeldet als Schueler:
+
+    lehrkraft_index_page(phase, user, schueler, wuensche, zeiten)
+  
+    # Angemeldet als Schueler:
   else
     zeiten = schueler_zeiten(user['id'])
     wuenschende = wuensche_an(user['id'])
     unterrichtende = lehrkraefte_von(user)
-    schueler_index_page(user, zeiten, wuenschende, unterrichtende)
+
+    schueler_index_page(phase, user, zeiten, wuenschende, unterrichtende)
   end
 end
 
@@ -55,93 +59,97 @@ def lehrkraft_zeiten(user_id)
   return zeiten
 end
 
-def lehrkraft_index_page(user, schueler, wuensche, zeiten)
+def lehrkraft_index_page(phase, user, schueler, wuensche, zeiten)
   return page "Elternsprechtag", HTML.fragment {
     # Knopf "krank melden" `POST /lehrkraft/:id/krank`
     form(method: 'post', action: "/lehrkraft/#{user['id']}/krank") {
       input(type: 'submit', value: 'krank melden')
     }
 
-    h2 { text 'Gespächswünsche' }
+    if phase == "Einrichtung" then
+      inline phasen_info
+    else
+      h2 { text 'Gespächswünsche' }
 
-    # Formular mit Name-Feld und "speichern"-Knopf `POST /wunsch`
-    form(method: 'post', action: "/wunsch") {
-      input(type: 'text', name: 'Name', placeholder: 'Name', list: 'schueler')
-      input(type: 'submit', value: 'speichern')
-    }
+      # Formular mit Name-Feld und "speichern"-Knopf `POST /wunsch`
+      form(method: 'post', action: "/wunsch") {
+        input(type: 'text', name: 'Name', placeholder: 'Name', list: 'schueler')
+        input(type: 'submit', value: 'speichern')
+      }
 
-    # - Auto-Vervollständigung für Name-Feld mit datalist 
-    # (alle von der angemeldeten Lehrkraft unterrichteten Schueler, 
-    # zu denen noch kein Gesprächswunsch dieser Lehrkraft gespeichert ist)
-    wunsch_schueler_ids = wuensche.collect { |wunsch| wunsch['Schueler']['id'] }
-    schueler.select! { |sch| !wunsch_schueler_ids.include?(sch['id']) }
-    datalist(id: 'schueler') {
-      schueler.each do |sch|
-        option(value: sch['Name'])
-      end
-    }
+      # - Auto-Vervollständigung für Name-Feld mit datalist 
+      # (alle von der angemeldeten Lehrkraft unterrichteten Schueler, 
+      # zu denen noch kein Gesprächswunsch dieser Lehrkraft gespeichert ist)
+      wunsch_schueler_ids = wuensche.collect { |wunsch| wunsch['Schueler']['id'] }
+      schueler.select! { |sch| !wunsch_schueler_ids.include?(sch['id']) }
+      datalist(id: 'schueler') {
+        schueler.each do |sch|
+          option(value: sch['Name'])
+        end
+      }
 
-    # Tabelle mit bereits angelegten Gesprächswünschen und den Spalten:
-    # - Name
-    # - Klasse
-    # - Lösch-Knopf `DELETE /wunsch/:id` (id gehört zu Gesprächswunsch)
-    table {
-      wuensche.each do |wunsch|
-        tr {
-          td { text wunsch['Schueler']['Name'] }
-          td { text wunsch['Schueler']['Klasse']['Bezeichnung'] }
-          td { inline delete_button("löschen", "/wunsch/#{wunsch['id']}") }
-        }
-      end
-    }
-
-    h2 { text "Zeitplan" }
-
-    # Tabelle mit allen Zeitfenstern (sortiert nach Beginn) ohne Kopfzeile und Spalten für
-    table {
-      zeiten.each do |zeit|
-        tr {
-          td { 
-            # - Beginn (ohne Tag)
-            text zeit['Beginn']
-            inline '&nbsp;'
-            text "-" 
-            inline '&nbsp;'
-            # - Ende (ohne Tag)
-            text add_zeit(zeit['Beginn'], zeit['Dauer']) 
+      # Tabelle mit bereits angelegten Gesprächswünschen und den Spalten:
+      # - Name
+      # - Klasse
+      # - Lösch-Knopf `DELETE /wunsch/:id` (id gehört zu Gesprächswunsch)
+      table {
+        wuensche.each do |wunsch|
+          tr {
+            td { text wunsch['Schueler']['Name'] }
+            td { text wunsch['Schueler']['Klasse']['Bezeichnung'] }
+            td { inline delete_button("löschen", "/wunsch/#{wunsch['id']}") }
           }
-          # - Termin (Schuelername, -klasse und Kommentar) bzw. Pause (Kommentar)
-          termin = zeit['Termin']
-          td {
-            if termin != nil then
-              schueler = termin['Schueler']
-              if schueler != nil then
-                text schueler['Name']
-                text ' ('
-                text schueler['Klasse']['Bezeichnung']
-                text '), '
+        end
+      }
+
+      h2 { text "Zeitplan" }
+
+      # Tabelle mit allen Zeitfenstern (sortiert nach Beginn) ohne Kopfzeile und Spalten für
+      table {
+        zeiten.each do |zeit|
+          tr {
+            td { 
+              # - Beginn (ohne Tag)
+              text zeit['Beginn']
+              inline '&nbsp;'
+              text "-" 
+              inline '&nbsp;'
+              # - Ende (ohne Tag)
+              text add_zeit(zeit['Beginn'], zeit['Dauer']) 
+            }
+            # - Termin (Schuelername, -klasse und Kommentar) bzw. Pause (Kommentar)
+            termin = zeit['Termin']
+            td {
+              if termin != nil then
+                schueler = termin['Schueler']
+                if schueler != nil then
+                  text schueler['Name']
+                  text ' ('
+                  text schueler['Klasse']['Bezeichnung']
+                  text '), '
+                end
+                text termin['Kommentar']
               end
-              text termin['Kommentar']
-            end
-          }
-          # - Formular mit Eingabefeld für Kommentar und Knopf "Pause speichern" 
-          # `POST /zeitfenster/:id/pause`
-          td {
-            if termin == nil then
-              form(method: 'post', action: "/zeitfenster/#{zeit['id']}/pause") {
-                input(type: 'text', name: 'Kommentar', value: 'Pause')
-                input(type: 'submit', value: 'speichern')
-              }
-            else
-              # - Lösch-Knopf bei Pause `DELETE /termin/:id`
-              if termin['Schueler'] == nil then
-                inline delete_button('löschen', "/termin/#{termin['id']}")
+            }
+            # - Formular mit Eingabefeld für Kommentar und Knopf "Pause speichern" 
+            # `POST /zeitfenster/:id/pause`
+            td {
+              if termin == nil then
+                form(method: 'post', action: "/zeitfenster/#{zeit['id']}/pause") {
+                  input(type: 'text', name: 'Kommentar', value: 'Pause')
+                  input(type: 'submit', value: 'speichern')
+                }
+              else
+                # - Lösch-Knopf bei Pause `DELETE /termin/:id`
+                if termin['Schueler'] == nil then
+                  inline delete_button('löschen', "/termin/#{termin['id']}")
+                end
               end
-            end
+            }
           }
-        }
-      end
-    }
+        end
+      }
+    end
   }
 end
 
@@ -207,56 +215,60 @@ def buchbar_fuer(schueler_id, rows)
   return result
 end
 
-def schueler_index_page(user, zeiten, wuenschende, unterrichtende)
-  phase = 'Buchung' # get_phase
+def schueler_index_page(phase, user, zeiten, wuenschende, unterrichtende)
   return page "Elternsprechtag", HTML.fragment {
-    # Tabelle mit allen Zeitfenstern (sortiert nach Beginn) ohne Kopfzeile und Spalten für
-    table {
-      zeiten.each do |zeit|
-        tr {
-          td { 
-            # - Beginn (ohne Tag)
-            text zeit['Beginn']
-            inline '&nbsp;'
-            text "-" 
-            inline '&nbsp;'
-            # - Ende (ohne Tag)
-            text add_zeit(zeit['Beginn'], zeit['Dauer']) 
-          }
-          # - Termin (Lehrername und Kommentar)
-          termin = zeit['Termin']
-          td {
-            if termin != nil then
-              text termin['Lehrkraft']['Name']
-              text ', '
-              text termin['Kommentar']
-            end
-          }
-          # - Lösch-Knopf bei Termin `DELETE /termin/:id` (auch in Phase Abruf)
-          td {
-            if termin != nil then
-              inline delete_button('löschen', "/termin/#{termin['id']}")
-            end
-          }
-          # - Links für alle buchbaren Lehrkräfte 
-          # `GET /lehrkraft/:id/zeitfenster/:id` (nur in Phasen PrioBuchung und Buchung)
-          td {
-            if termin == nil && ['PrioBuchung', 'Buchung'].include?(phase) then
-              buchbar = buchbare_lehrkraefte(phase, zeit['id'], wuenschende, unterrichtende)
-              ul {
-                buchbar.each do |lehrkraft|
-                  li {
-                    a(href: "/lehrkraft/#{lehrkraft['id']}/zeitfenster/#{zeit['id']}") {
-                      text lehrkraft['Name']
+    if ["Einrichtung", "Konfiguration"].include?(phase) then
+      inline phasen_info
+    else
+      h2 { text "Zeitplan" }
+      # Tabelle mit allen Zeitfenstern (sortiert nach Beginn) ohne Kopfzeile und Spalten für
+      table {
+        zeiten.each do |zeit|
+          tr {
+            td { 
+              # - Beginn (ohne Tag)
+              text zeit['Beginn']
+              inline '&nbsp;'
+              text "-" 
+              inline '&nbsp;'
+              # - Ende (ohne Tag)
+              text add_zeit(zeit['Beginn'], zeit['Dauer']) 
+            }
+            # - Termin (Lehrername und Kommentar)
+            termin = zeit['Termin']
+            td {
+              if termin != nil then
+                text termin['Lehrkraft']['Name']
+                text ', '
+                text termin['Kommentar']
+              end
+            }
+            # - Lösch-Knopf bei Termin `DELETE /termin/:id` (auch in Phase Abruf)
+            td {
+              if termin != nil then
+                inline delete_button('löschen', "/termin/#{termin['id']}")
+              end
+            }
+            # - Links für alle buchbaren Lehrkräfte 
+            # `GET /lehrkraft/:id/zeitfenster/:id` (nur in Phasen PrioBuchung und Buchung)
+            td {
+              if termin == nil && ['PrioBuchung', 'Buchung'].include?(phase) then
+                buchbar = buchbare_lehrkraefte(phase, zeit['id'], wuenschende, unterrichtende)
+                ul {
+                  buchbar.each do |lehrkraft|
+                    li {
+                      a(href: "/lehrkraft/#{lehrkraft['id']}/zeitfenster/#{zeit['id']}") {
+                        text lehrkraft['Name']
+                      }
                     }
-                  }
-                end
-              }
-            end
+                  end
+                }
+              end
+            }
           }
-        }
-      end
-    }
+        end
+      }
+    end
   }
 end
 
@@ -276,4 +288,22 @@ def buchbare_lehrkraefte(phase, zeitfenster_id, wuenschend, unterrichtend)
     result.uniq!
   end
   return result
+end
+
+def phasen_info
+  phasen = db.in('Phase').all
+  return HTML.fragment {
+    table {
+      phasen.each do |phase|
+        tr {
+          td { text phase['Bezeichnung'] }
+          td { text pretty_date(phase['Beginn'])}
+        }
+      end
+    }
+  }
+end
+
+def pretty_date date_str
+  return DateTime.parse(date_str).strftime("%d.%m.%Y")
 end
