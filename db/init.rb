@@ -89,7 +89,7 @@ def mkLehrkraft(name, kuerzel, password, istAdmin)
 end
 
 # create Admin user
-print "Bitte Admin-Passwort eingeben: "
+print "Bitte Admin-Passwort festlegen: "
 password = gets.chop
 db.in("Lehrkraft").insert(mkLehrkraft("Admin", "admin", password, 1))
 
@@ -136,18 +136,24 @@ db.in('unterrichtet').insert({ "Lehrkraft" => 2, "Klasse" => 1 })
 db.in('unterrichtet').insert({ "Lehrkraft" => 3, "Klasse" => 1 })
 db.in('unterrichtet').insert({ "Lehrkraft" => 3, "Klasse" => 2 })
 
-now = DateTime.now
-tag = DateTime.new(now.year, now.month, now.day, 9).next_day(10)
-18.times do
+def pad(x)
+  if x < 10 then
+    return "0#{x}"
+  else
+    return x.to_s
+  end
+end
+
+def show_time zeit
+  return "#{pad(zeit[0])}:#{pad(zeit[1])}"
+end
+
+zeiten = [[9,0],[9,10],[9,20],[9,30],[9,40],[9,50]]
+zeiten.each do |zeit|
   db.in("Zeitfenster").insert({
-    "Beginn" => tag.to_s,
+    "Beginn" => show_time(zeit),
     "Dauer" => 10
   })
-  db.in("Zeitfenster").insert({
-    "Beginn" => (tag + Rational(5, 24)).to_s, # 5 hours later
-    "Dauer" => 10
-  })
-  tag = tag + Rational(10, 24*60) # 10 minutes later
 end
 
 db.in("Gespraechswunsch").insert({ "Lehrkraft" => 2, "Schueler" => 1 })
