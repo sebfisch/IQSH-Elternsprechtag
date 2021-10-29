@@ -1,17 +1,3 @@
-# Angemeldet als Schueler:
-
-# Tabelle mit allen Zeitfenstern (sortiert nach Beginn) ohne Kopfzeile und Spalten für
-# - Beginn (ohne Tag)
-# - Ende (ohne Tag)
-# - Termin (Lehrername und Kommentar)
-# - Lösch-Knopf bei Termin `DELETE /termin/:id` (auch in Phase Abruf)
-# - Links für alle buchbaren Lehrkräfte `GET /lehrkraft/:id/zeitfenster/:id` (nur in Phasen PrioBuchung und Buchung)
-
-# Buchbar sind:
-# - generell: noch solche mit denen noch kein Termin vereinbart ist
-# - in Phase PrioBuchung: nur solche mit Gesprächswunsch und freiem Zeitfenster
-# - in Phase Buchung: alle, die angemeldeten Schueler unterrichten (oder Gesprächswunsch haben) und im Zeitfenster frei sind
-
 # Nicht angemeldet: Weiterleitung `GET /login`
 get '/', login: true do
   user = current_user
@@ -23,8 +9,12 @@ get '/', login: true do
     schueler = lehrkraft_schueler(user['id'])
     zeiten = lehrkraft_zeiten(user['id'])
     lehrkraft_index_page(user, schueler, wuensche, zeiten)
+  # Angemeldet als Schueler:
   else
-    page "Schueler", ""
+    zeiten = schueler_zeiten(user['id'])
+    wuenschende = wuensche_an(user['id'])
+    unterrichtende = lehrkraefte_von(user)
+    schueler_index_page(user, zeiten, wuenschende, unterrichtende)
   end
 end
 
@@ -114,7 +104,9 @@ def lehrkraft_index_page(user, schueler, wuensche, zeiten)
           td { 
             # - Beginn (ohne Tag)
             text zeit['Beginn']
-            text " - " 
+            inline '&nbsp;'
+            text "-" 
+            inline '&nbsp;'
             # - Ende (ohne Tag)
             text add_zeit(zeit['Beginn'], zeit['Dauer']) 
           }
@@ -127,7 +119,7 @@ def lehrkraft_index_page(user, schueler, wuensche, zeiten)
                 text schueler['Name']
                 text ' ('
                 text schueler['Klasse']['Bezeichnung']
-                text ') '
+                text '), '
               end
               text termin['Kommentar']
             end
@@ -167,4 +159,116 @@ def add_zeit(zeit, minutes)
     res = val.to_s
     if res.size < 2 then "0#{res}" else res end
   end.join(':')
+end
+
+def schueler_zeiten(user_id)
+  termine = {}
+  db.in('Termin').all_where('Schueler = ?', [user_id]).each do |termin|
+    termin['Lehrkraft'] = db.in('Lehrkraft').get(termin['Lehrkraft'])
+    termine[termin['Zeitfenster']] = termin
+  end
+
+  zeiten = db.in('Zeitfenster').all.sort_by { |wunsch| wunsch['Beginn'] }
+  zeiten.each do |zeit|
+    zeit['Termin'] = termine[zeit['id']]
+  end
+
+  return zeiten
+end
+
+def wuensche_an(schueler_id)
+  wuensche = db.in('Gespraechswunsch').all_where('Schueler = ?', [schueler_id])
+  return wuensche.collect do |wunsch|
+    lehrkraft = db.in('Lehrkraft').get(wunsch['Lehrkraft'])
+
+    termine = db.in('Termin').all_where('Lehrkraft = ?', [lehrkraft['id']])
+    lehrkraft['belegt'] = termine.collect { |termin| termin['Zeitfenster'] }
+
+    lehrkraft
+  end.uniq
+end
+
+def lehrkraefte_von(schueler)
+  unterricht = db.in('unterrichtet').all_where('Klasse = ?', [schueler['Klasse']])
+  return unterricht.collect do |u|
+    lehrkraft = db.in('Lehrkraft').get(u['Lehrkraft'])
+
+    termine = db.in('Termin').all_where('Lehrkraft = ?', [lehrkraft['id']])
+    lehrkraft['belegt'] = termine.collect { |termin| termin['Zeitfenster'] }
+
+    lehrkraft
+  end.uniq
+end
+
+def schueler_index_page(user, zeiten, wuenschende, unterrichtende)
+  phase = get_phase
+  return page "Elternsprechtag", HTML.fragment {
+    # Tabelle mit allen Zeitfenstern (sortiert nach Beginn) ohne Kopfzeile und Spalten für
+    table {
+      zeiten.each do |zeit|
+        tr {
+          td { 
+            # - Beginn (ohne Tag)
+            text zeit['Beginn']
+            inline '&nbsp;'
+            text "-" 
+            inline '&nbsp;'
+            # - Ende (ohne Tag)
+            text add_zeit(zeit['Beginn'], zeit['Dauer']) 
+          }
+          # - Termin (Lehrername und Kommentar)
+          termin = zeit['Termin']
+          td {
+            if termin != nil then
+              text termin['Lehrkraft']['Name']
+              text ', '
+              text termin['Kommentar']
+            end
+          }
+          # - Lösch-Knopf bei Termin `DELETE /termin/:id` (auch in Phase Abruf)
+          td {
+            if termin != nil then
+              inline delete_button('löschen', "/termin/#{termin['id']}")
+            end
+          }
+          # - Links für alle buchbaren Lehrkräfte 
+          # `GET /lehrkraft/:id/zeitfenster/:id` (nur in Phasen PrioBuchung und Buchung)
+          td {
+            if ['PrioBuchung', 'Buchung'].include?(phase) then
+              buchbar = buchbare_lehrkraefte(
+                phase, user['id'], zeit['id'], wuenschende, unterrichtende
+              )
+              ul {
+                buchbar.each do |lehrkraft|
+                  li {
+                    a(href: "/lehrkraft/#{lehrkraft['id']}/zeitfenster/#{zeit['id']}") {
+                      text lehrkraft['Name']
+                    }
+                  }
+                end
+              }
+            end
+          }
+        }
+      end
+    }
+  }
+end
+
+# Buchbar sind:
+# - generell: solche mit denen noch kein Termin vereinbart ist
+# - in Phase PrioBuchung: nur solche mit Gesprächswunsch und freiem Zeitfenster
+# - in Phase Buchung: alle, die angemeldeten Schueler unterrichten 
+#     (oder Gesprächswunsch haben) und im Zeitfenster frei sind
+def buchbare_lehrkraefte(phase, schueler_id, zeitfenster_id, wuenschend, unterrichtend)
+  result = wuenschend.select do |lehrkraft| 
+    !lehrkraft['belegt'].include?(zeitfenster_id)
+  end
+  if phase == 'Buchung' then
+    result = result + unterrichtend.select do |lehrkraft| 
+      !lehrkraft['belegt'].include?(zeitfenster_id)
+    end
+    result.uniq!
+  end
+  return result
 end
