@@ -6,11 +6,12 @@ get '/', login: true do
 
   # Angemeldet als Lehrkraft:
   if ["Admin", "Lehrkraft"].include?(role) then
-    wuensche = lehrkraft_wuensche(user['id'])
     schueler = lehrkraft_schueler(user['id'])
+    wuensche = lehrkraft_wuensche(user['id'])
+    anfragen = lehrkraft_anfragen(user['id'])
     zeiten = lehrkraft_zeiten(user['id'])
 
-    lehrkraft_index_page(phase, user, schueler, wuensche, zeiten)
+    lehrkraft_index_page(phase, user, schueler, wuensche, anfragen, zeiten)
   
     # Angemeldet als Schueler:
   else
@@ -41,6 +42,13 @@ def lehrkraft_schueler(user_id)
   return schueler.uniq
 end
 
+def lehrkraft_anfragen(user_id)
+  anfragen = db.in('Anfrage').all_where('Lehrkraft = ?', [user_id])
+  return anfragen.collect do |anfrage|
+    db.in('Schueler').get(anfrage['Schueler'])
+  end
+end
+
 def lehrkraft_zeiten(user_id)
   termine = {}
   db.in('Termin').all_where('Lehrkraft = ?', [user_id]).each do |termin|
@@ -59,7 +67,7 @@ def lehrkraft_zeiten(user_id)
   return zeiten
 end
 
-def lehrkraft_index_page(phase, user, schueler, wuensche, zeiten)
+def lehrkraft_index_page(phase, user, schueler, wuensche, anfragen, zeiten)
   return page "Elternsprechtag", HTML.fragment {
     if phase == "Einrichtung" then
       p { text "Die Konfigurationsphase hat noch nicht begonnen." }
@@ -86,6 +94,15 @@ def lehrkraft_index_page(phase, user, schueler, wuensche, zeiten)
       datalist(id: 'schueler') {
         schueler.each do |sch|
           option(value: sch['Name'])
+        end
+      }
+
+      # Anfragen bei Terminkonflikt
+      h2 { text "Anfragen mit Terminkonflikt" }
+
+      ul {
+        anfragen.each do |schueler|
+          li { text schueler['Name'] }
         end
       }
 
