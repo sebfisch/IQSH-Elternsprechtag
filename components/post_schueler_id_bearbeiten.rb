@@ -35,6 +35,6 @@ post '/schueler/:id/bearbeiten' do |sid|
   
   db.in('Schueler').set(sid.to_i,schueler)
     
-  redirect to url
+  redirect to '/schueler'
 
 end
