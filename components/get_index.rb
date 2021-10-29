@@ -178,30 +178,37 @@ end
 
 def wuensche_an(schueler_id)
   wuensche = db.in('Gespraechswunsch').all_where('Schueler = ?', [schueler_id])
-  return wuensche.collect do |wunsch|
-    lehrkraft = db.in('Lehrkraft').get(wunsch['Lehrkraft'])
-
-    termine = db.in('Termin').all_where('Lehrkraft = ?', [lehrkraft['id']])
-    lehrkraft['belegt'] = termine.collect { |termin| termin['Zeitfenster'] }
-
-    lehrkraft
-  end.uniq
+  return buchbar_fuer(schueler_id, wuensche)
 end
 
 def lehrkraefte_von(schueler)
   unterricht = db.in('unterrichtet').all_where('Klasse = ?', [schueler['Klasse']])
-  return unterricht.collect do |u|
-    lehrkraft = db.in('Lehrkraft').get(u['Lehrkraft'])
+  return buchbar_fuer(schueler['id'], unterricht)
+end
 
-    termine = db.in('Termin').all_where('Lehrkraft = ?', [lehrkraft['id']])
-    lehrkraft['belegt'] = termine.collect { |termin| termin['Zeitfenster'] }
+def buchbar_fuer(schueler_id, rows)
+  result = []
 
-    lehrkraft
-  end.uniq
+  rows.each do |row|
+    termin = db.in('Termin').one_where('Lehrkraft = ? and Schueler = ?', 
+      [row['Lehrkraft'], schueler_id])
+
+    if termin == nil then
+      lehrkraft = db.in('Lehrkraft').get(row['Lehrkraft'])
+
+      termine = db.in('Termin').all_where('Lehrkraft = ?', [lehrkraft['id']])
+      lehrkraft['belegt'] = termine.collect { |termin| termin['Zeitfenster'] }
+
+      result.push(lehrkraft)
+    end
+  end
+
+  result.uniq!
+  return result
 end
 
 def schueler_index_page(user, zeiten, wuenschende, unterrichtende)
-  phase = get_phase
+  phase = 'Buchung' # get_phase
   return page "Elternsprechtag", HTML.fragment {
     # Tabelle mit allen Zeitfenstern (sortiert nach Beginn) ohne Kopfzeile und Spalten für
     table {
@@ -234,10 +241,8 @@ def schueler_index_page(user, zeiten, wuenschende, unterrichtende)
           # - Links für alle buchbaren Lehrkräfte 
           # `GET /lehrkraft/:id/zeitfenster/:id` (nur in Phasen PrioBuchung und Buchung)
           td {
-            if ['PrioBuchung', 'Buchung'].include?(phase) then
-              buchbar = buchbare_lehrkraefte(
-                phase, user['id'], zeit['id'], wuenschende, unterrichtende
-              )
+            if termin == nil && ['PrioBuchung', 'Buchung'].include?(phase) then
+              buchbar = buchbare_lehrkraefte(phase, zeit['id'], wuenschende, unterrichtende)
               ul {
                 buchbar.each do |lehrkraft|
                   li {
@@ -260,7 +265,7 @@ end
 # - in Phase PrioBuchung: nur solche mit Gesprächswunsch und freiem Zeitfenster
 # - in Phase Buchung: alle, die angemeldeten Schueler unterrichten 
 #     (oder Gesprächswunsch haben) und im Zeitfenster frei sind
-def buchbare_lehrkraefte(phase, schueler_id, zeitfenster_id, wuenschend, unterrichtend)
+def buchbare_lehrkraefte(phase, zeitfenster_id, wuenschend, unterrichtend)
   result = wuenschend.select do |lehrkraft| 
     !lehrkraft['belegt'].include?(zeitfenster_id)
   end
