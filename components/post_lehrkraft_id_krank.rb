@@ -59,13 +59,14 @@ post '/lehrkraft/:id/krank' do |lid|
             zeitfenster = db.in('Zeitfenster').all
             zeitfenster.each do |zf|
                 db.in('Termin').insert({"Kommentar" => "abwesend", "Lehrkraft" => lid.to_i, "Schueler" => nil, "Zeitfenster" => zf["id"].to_i})
-            end
+        end
             
     #        puts arr.to_s
         end 
         
         redirect to '/'
-    enddb.in("Anfrage").insert({"Lehrkraft" => lid.to_i, "Schueler" => schueler.to_i})
+    end
+    db.in("Anfrage").insert({"Lehrkraft" => lid.to_i, "Schueler" => schueler.to_i})
             end
             # Alle Termine der LK löschen
             db.in('Termin').delete(termin['id'])
