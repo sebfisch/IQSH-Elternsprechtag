@@ -13,7 +13,6 @@
 #Weiterleitung GET / 
 
 
-
 post '/lehrkraft/:id/krank' do |lid|
 #    puts get_status(current_user)
 #    puts current_user['id']
