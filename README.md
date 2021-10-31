@@ -10,12 +10,14 @@ Um die jeweils aktuelle Version der Anwendung zu starten, kannst Du:
   * mit `ruby db/init.rb` die Datenbank initalisieren (dabei wird ein festzulegendes Admin-Passwort abgefragt)
   * und dann mit `ruby start_server.rb` den Server starten.
 
+Neben dem Administrator erzeugt das Init-Programm für die Datenbank auch eine Reihe von Testdaten
+inklusive weiterer Nutzer-Accounts unterschiedlicher Rollen (siehe [init.rb](https://github.com/sebfisch/IQSH-Elternsprechtag/blob/latest/db/init.rb)).
 Nachdem der Server gestartet wurde, 
-kann die Anwendung in einem Browser unter der Adresse [http://localhost:4567](localhost:4567) genutzt werden.
-Mit `Strg-C` kann der Server beendet werden.
+kann die Anwendung in einem Browser unter der Adresse `http://localhost:4567` genutzt werden.
+Mit `Strg-C` wird der Serer beendet.
 
-Hier ist die vollständige Ausgabe dieser Schritte auf meinem System.
-Zeilen, die mit einem Semikolon beginnen, enthalten die oben genannten Terminal-Kommandos.
+Hier ist die vollständige Ausgabe der oben genannten Schritte auf meinem System.
+Zeilen, die mit einem Semikolon beginnen, enthalten die erwähnten Terminal-Kommandos.
 
 ```
 ; git clone https://github.com/sebfisch/IQSH-Elternsprechtag.git
