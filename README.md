@@ -4,7 +4,7 @@ Projekt der IQSH Weiterbildung 2021
 
 ## Anwendung starten
 
-Um die jeweils aktuelle Version der anwendung zu starten, kannst Du:
+Um die jeweils aktuelle Version der Anwendung zu starten, kannst Du:
 
   * dieses Repoisitory mit `git clone` clonen,
   * mit `ruby db/init.rb` die Datenbank initalisieren (dabei wird ein festzulegendes Admin-Passwort abgefragt)
