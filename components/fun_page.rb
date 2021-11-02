@@ -4,8 +4,9 @@ def page titel, inhalt
     usr_row = current_user
     status = get_status(usr_row)
   end
-  HTML.doc(charset: 'utf-8') {
+  HTML.doc(lang: "de") {
     head {
+      meta(charset:'utf-8')
       title { text titel }
       link(
         rel: 'stylesheet', 
