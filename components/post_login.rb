@@ -6,8 +6,8 @@
 post '/login' do
       username = params['Benutzername']
       password = params['Passwort']
-      row_S = db.in('Schueler').one_where("Name = '#{username}'")
-      row_L = db.in('Lehrkraft').one_where("Kuerzel = '#{username}'")
+      row_S = db.in('Schueler').one_where("Name = ?",[username])
+      row_L = db.in('Lehrkraft').one_where("Kuerzel = ?",[username])
       hash = password_hash('')
       if row_S != nil then
           hash = row_S['PwHash']
